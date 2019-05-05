@@ -1,4 +1,4 @@
-/* James Kwedi Jr.
+ /* James Kwedi Jr. & Ralph Mehitang
 *  COSC320 Project 3: Disjoin Sets in graphs
 *  Dr. Anderson
 *  
