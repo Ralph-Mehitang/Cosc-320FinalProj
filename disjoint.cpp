@@ -1,61 +1,43 @@
- /* James Kwedi Jr. & Ralph Mehitang
-*  COSC320 Project 3: Disjoin Sets in graphs
-*  Dr. Anderson
-*  
-*/
-
-#include<iostream>
-#include<vector>
-#include<algorithm>
+#include <iostream>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 #define edge pair<int,int>
 
-class Graph
-{
+class Graph {
 private:
-	vector <pair<int,edge>>G;    // Graph
-	vector <pair<int,edge>>T;    // mst
+	vector<pair<int, edge>> G; // graph
+	vector<pair<int, edge>> mst; // mst
 	int *parent;
-	int	V;            // number of vertices/nodes in graph
+	int V; // number of vertices/nodes in graph
 public:
 	Graph(int V);
-	void AddEdgeAndWeight(int u, int v, int weight);
+	void AddWeightedEdge(int u, int v, int w);
 	int find_set(int i);
 	void union_set(int u, int v);
-	bool find_cycle();
+	void kruskal();
+	void printMST();
+	void printG();
+	void allParents();
 };
+Graph::Graph(int U) {
+	parent = new int[U];
 
-/*******************************************************************/
-/*******************************************************************/
-
-Graph::Graph(int V)
-{
-	parent = new int[V];
-
-	//Ex: i          0 1 2 3 4 5
-	//Ex: parent[i]  0 1 2 3 4 5
-	for (int i = 0; i < V; i++)
+	//Ex: i			0 1 2 3 4 5
+	//Ex: parent[i] 0 1 2 3 4 5
+	for (int i = 0; i < U; i++)
 		parent[i] = i;
 
 	G.clear();
-	T.clear();
+	mst.clear();
 }
-
-/*******************************************************************/
-/*******************************************************************/
-
-void Graph::AddEdgeAndWeight(int u, int v, int weight)
-{
-	// reset graph and mst
+void Graph::AddWeightedEdge(int u, int v, int weight) {
 	G.push_back(make_pair(weight, edge(u, v)));
 }
 
-/*******************************************************************/
-/*******************************************************************/
 
-int Graph::find_set(int i)
-{
+int Graph::find_set(int i) {
 	// If i is the parent of itself
 	if (i == parent[i])
 		return i;
@@ -66,77 +48,63 @@ int Graph::find_set(int i)
 		return find_set(parent[i]);
 }
 
-/*******************************************************************/
-/*******************************************************************/
-
-//The parent of u will be the parent of v
-void Graph::union_set(int u, int v)
-{
+void Graph::union_set(int u, int v) {
 	parent[u] = parent[v];
 }
-
-/*******************************************************************/
-/*******************************************************************/
-
-// Finds a cycle in the graph to see
-bool Graph::find_cycle()
-{
+void Graph::kruskal() {
 	int i, uRep, vRep;
-	for (i = 0; i < G.size(); i++)
-	{
+	sort(G.begin(), G.end()); // increasing weight
+	for (i = 0; i < G.size(); i++) {
 		uRep = find_set(G[i].second.first);
 		vRep = find_set(G[i].second.second);
-		if (uRep != vRep)
-		{
+		if (uRep != vRep) {
+			mst.push_back(G[i]); // add to tree
 			union_set(uRep, vRep);
 		}
-		else if (uRep = vRep)
-		{
-			return true;
-			break;
-		}
 	}
-	return false;
+}
+void Graph::printMST() {
+	cout << "Vertices:" << " Weight of edge" << endl;
+	for (int i = 0; i < mst.size(); i++) {
+		cout << mst[i].second.first << " <-> " << mst[i].second.second << " : "
+			<< mst[i].first;
+		cout << endl;
+	}
 }
 
-/*******************************************************************/
-/*******************************************************************/
+void Graph::printG() {
+	cout << "Vertices:" << " Weight of edge" << endl;
+	for (int i = 0; i < G.size(); i++) {
+		cout << G[i].second.first << " <-> " << G[i].second.second << " : "
+			<< G[i].first;
+		cout << endl;
+	}
+}
 
-
-int main()
-{
+int main() {
 	Graph g(6);
-	g.AddEdgeAndWeight(0, 1, 4);
-	g.AddEdgeAndWeight(0, 2, 4);
-	g.AddEdgeAndWeight(1, 2, 2);
-	g.AddEdgeAndWeight(1, 0, 4);
-	g.AddEdgeAndWeight(2, 0, 4);
-	g.AddEdgeAndWeight(2, 1, 2);
-	g.AddEdgeAndWeight(2, 3, 3);
-	g.AddEdgeAndWeight(2, 5, 2);
-	g.AddEdgeAndWeight(2, 4, 4);
-	g.AddEdgeAndWeight(3, 2, 3);
-	g.AddEdgeAndWeight(3, 4, 3);
-	g.AddEdgeAndWeight(4, 2, 4);
-	g.AddEdgeAndWeight(4, 3, 3);
-	g.AddEdgeAndWeight(5, 2, 2);
-	g.AddEdgeAndWeight(5, 4, 3);
+	g.AddWeightedEdge(0, 1, 4);
+	g.AddWeightedEdge(0, 2, 4);
+	g.AddWeightedEdge(1, 2, 2);
+	g.AddWeightedEdge(1, 0, 4);
+	g.AddWeightedEdge(2, 0, 4);
+	g.AddWeightedEdge(2, 1, 2);
+	g.AddWeightedEdge(2, 3, 3);
+	g.AddWeightedEdge(2, 5, 2);
+	g.AddWeightedEdge(2, 4, 4);
+	g.AddWeightedEdge(3, 2, 3);
+	g.AddWeightedEdge(3, 4, 3);
+	g.AddWeightedEdge(4, 2, 4);
+	g.AddWeightedEdge(4, 3, 3);
+	g.AddWeightedEdge(5, 2, 2);
+	g.AddWeightedEdge(5, 4, 3);
 
-	if (g.find_cycle())
-		cout << "The graph has cycle" << endl;
-	else
-		cout << "The graph has no cycle" << endl;
+	cout << "Original graph: " << endl;
+	g.printG();
+	cout << endl << endl;
 
-	//cout << "Graph data: " << endl;
-	//g.printGraph();
-
-	cout << "The parent for each node: " << endl;
-	cout << "0: " << g.find_set(0) << endl;
-	cout << "1: " << g.find_set(1) << endl;
-	cout << "2: " << g.find_set(2) << endl;
-	cout << "3: " << g.find_set(3) << endl;
-	cout << "4: " << g.find_set(4) << endl;
-	cout << "5: " << g.find_set(5) << endl;
-
+	cout << "Performing Kruskal's Algorithm and printing the minimum spanning tree: " << endl;
+	g.kruskal();
+	g.printMST();
 	return 0;
 }
